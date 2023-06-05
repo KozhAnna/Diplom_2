@@ -11,7 +11,6 @@ import ru.yandex.praktikum.service.Service;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.*;
 
 public class UserCreateTest {
@@ -41,8 +40,8 @@ public class UserCreateTest {
         assertFalse(regResponse.getRefreshToken().isBlank());
     }
 
-    @Step ("Удаляем созданного пользователя (окончание)")
-    public void tearDown(){
+    @Step ("Завершение - удаляем созданного пользователя")
+    public void tearDown() {
         // авторизация пользователя
         userAPI.login(UserCredentials.from(UserCredentials.user));
         // удаление пользователя
@@ -50,7 +49,7 @@ public class UserCreateTest {
                 .header("Authorization",regResponse.getAccessToken())
                 .body(UserCredentials.user)
                 .when()
-                .delete ("auth/user")
+                .delete(UserAPI.DELETE_USER_PATH)
                 .then()
                 .statusCode(HttpStatus.SC_ACCEPTED);
     }
@@ -71,7 +70,7 @@ public class UserCreateTest {
         return userAPI.create(UserCredentials.user);
     }
 
-    @Step("Проверка кода создания дубля")
+    @Step("Проверка ответа (результат отрицательный)")
     public void checkStatusCodeOfBadRequest(Response response) {
         assertEquals(HttpStatus.SC_FORBIDDEN, response.getStatusCode());
     }

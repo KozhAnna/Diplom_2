@@ -12,7 +12,7 @@ public class UserAPI {
     private static final String USER_PATH = "auth/user";
     private static final String CREATE_USER_PATH = "auth/register";
     private static final String LOGIN_USER_PATH = "auth/login";
-    private static final String DELETE_USER_PATH = "auth/user";
+    public static final String DELETE_USER_PATH = "auth/user";
     private static final String EDIT_USER_PATH = "auth/user";
 
     @Step("Создание пользователя")
@@ -33,7 +33,9 @@ public class UserAPI {
                 .post("auth/register")
                 .then()
                 .statusCode(HttpStatus.SC_OK)
-                .extract().response().as(AuthResponse.class);
+                .extract()
+                .response()
+                .as(AuthResponse.class);
     }
 
     @Step("Удаление пользователя")
@@ -54,6 +56,19 @@ public class UserAPI {
                 .post(LOGIN_USER_PATH);
     }
 
+    @Step("Авторизация и возврат ответа как класс")
+    public AuthResponse loginAsAuthResponse(UserCredentials user) {
+        return given()
+                .body(user)
+                .when()
+                .post(LOGIN_USER_PATH)
+                .then()
+                .statusCode(HttpStatus.SC_OK)
+                .extract()
+                .response()
+                .as(AuthResponse.class);
+    }
+
     @Step("Получение информации о пользователе")
     public Response getUser(User user) {
         Service.setupSpecification();
@@ -72,7 +87,7 @@ public class UserAPI {
                 .patch(EDIT_USER_PATH);
     }
 
-    public Response editDataWithoutToken(UserCredentials user){
+    public Response editDataWithoutToken(User user){
         Service.setupSpecification();
         return given()
                 .body(user)

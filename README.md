@@ -14,8 +14,7 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-Это **Вторая часть диплома** курса обучения **Автоматизатор тестирования на Java**, который я прохожу на [Яндекс.Практикуме](https://practicum.yandex.ru/)
-Тестируем API для Stellar Burgers
+Это **вторая часть диплома** (тестируем API для Stellar Burgers) курса обучения **Автоматизатор тестирования на Java**, который я прохожу на [Яндекс.Практикуме](https://practicum.yandex.ru/)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -25,8 +24,10 @@
 * Java 11
 * Maven 3.8.1
 * JUnit 4.13.2
-* Mockito 3.12.4
-* Jacoco 0.8.7
+* Allure 2.21.0
+* Aspectj 1.9.7
+* RestAssured 5.3.0
+* Gson 2.10.1
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

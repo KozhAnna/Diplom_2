@@ -17,10 +17,7 @@ public class UserCredentials {
     public static String newFakePassword = userGenerator.fakeUserPassword();
     public static String newFakeEmail = userGenerator.fakeUserEmail();
     public static String newFakeName = userGenerator.fakeUserName();
-    public static User newUser = new User("", newFakeEmail, newFakePassword);
-    public static User userWithNewName = new User(newFakeName, fakeEmail, fakePassword);
-    public static User userWithNewEmail = new User(fakeName, newFakeEmail, fakePassword);
-    public static User userWithNewPassword = new User(fakeName, fakeEmail, newFakePassword);
+    public static User newUser = new User(newFakeName, newFakeEmail, newFakePassword);
 
     public UserCredentials() {
     }
