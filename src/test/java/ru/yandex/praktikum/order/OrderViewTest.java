@@ -11,39 +11,32 @@ import ru.yandex.praktikum.service.Service;
 import ru.yandex.praktikum.user.UserAPI;
 import ru.yandex.praktikum.user.UserCredentials;
 
-import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.*;
 
 public class OrderViewTest {
 
     UserAPI userAPI = new UserAPI();
     OrderAPI orderAPI = new OrderAPI();
-    String AuthToken;
+    String authToken;
 
     @Before
     @Step("Начало - создание пользователя")
     public void setUp() {
         Service.setupSpecification();
         Response loginResponse = userAPI.create(UserCredentials.user);
-        AuthToken = loginResponse.then().extract().path("accessToken");
+        authToken = loginResponse.then().extract().path("accessToken");
     }
 
     @After
     @Step("Завершение - удаляем созданного пользователя")
     public void tearDown() {
-        given()
-                .header("Authorization", AuthToken)
-                .body(UserCredentials.user)
-                .when()
-                .delete(UserAPI.DELETE_USER_PATH)
-                .then()
-                .statusCode(HttpStatus.SC_ACCEPTED);
+        userAPI.delete(authToken, UserCredentials.user);
     }
 
     @Test
     @DisplayName("Получить список заказов пользователя")
     public void getOrdersByUser() {
-        Response response = orderAPI.getOrdersByCurrentUser(AuthToken);
+        Response response = orderAPI.getOrdersByCurrentUser(authToken);
         checkResponseWhenGetListOfOrders(response);
     }
 

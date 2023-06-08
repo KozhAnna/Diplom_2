@@ -15,14 +15,13 @@ import ru.yandex.praktikum.user.UserCredentials;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.*;
 
 public class OrderCreateTest {
 
     UserAPI userAPI = new UserAPI();
     OrderAPI orderAPI = new OrderAPI();
-    String AuthToken;
+    String authToken;
     IngredientsResponse ingredients;
     Order order;
 
@@ -31,41 +30,23 @@ public class OrderCreateTest {
     public void setUp() {
         Service.setupSpecification();
         Response loginResponse = userAPI.create(UserCredentials.user);
-        AuthToken = loginResponse.then().extract().path("accessToken");
+        authToken = loginResponse.then().extract().path("accessToken");
     }
 
     @After
     @Step("Завершение - удаляем созданного пользователя")
     public void tearDown() {
-        given()
-                .header("Authorization", AuthToken)
-                .body(UserCredentials.user)
-                .when()
-                .delete(UserAPI.DELETE_USER_PATH)
-                .then()
-                .statusCode(HttpStatus.SC_ACCEPTED);
+        userAPI.delete(authToken, UserCredentials.user);
     }
 
     @Test
     @DisplayName("Создание заказа с авторизацией")
     public void createOrderWithAuthorization() {
-        ingredients = getAllIngredients();
+        ingredients = orderAPI.getAllIngredients();
         ArrayList<String> tempOrder = new OrderGenerator().createRandomOrder(ingredients);
         order = new Order(tempOrder);
-        Response response = orderAPI.createOrder(AuthToken, order);
+        Response response = orderAPI.createOrder(authToken, order);
         checkResponseOfCreateOrder(response);
-    }
-
-    @Step("Получаем список возможных ингредиентов как класс")
-    public IngredientsResponse getAllIngredients() {
-        return  given()
-                .when()
-                .get("ingredients")
-                .then()
-                .statusCode(HttpStatus.SC_OK)
-                .extract()
-                .response()
-                .as(IngredientsResponse.class);
     }
 
     @Step("Проверка ответа после создания заказа")
@@ -81,19 +62,11 @@ public class OrderCreateTest {
     @Test
     @DisplayName("Создание заказа без авторизации")
     public void createOrderWithoutAuthorization() {
-        ingredients = getAllIngredients();
+        ingredients = orderAPI.getAllIngredients();
         ArrayList<String> tempOrder = new OrderGenerator().createRandomOrder(ingredients);
         order = new Order(tempOrder);
-        Response response = letCreateOrderWithoutAuth();
+        Response response = orderAPI.createOrderWithoutAuth(order);
         checkResponseOfCreateOrderWithoutAuth(response);
-    }
-
-    @Step("Отправка запроса на создание заказа (без авторизации)")
-    public Response letCreateOrderWithoutAuth() {
-        return given()
-                .body(order)
-                .when()
-                .post(OrderAPI.ORDER_PATH);
     }
 
     @Step("Проверка ответа после создания заказа (без авторизации)")
@@ -111,7 +84,7 @@ public class OrderCreateTest {
     public void createOrderWithoutIngredients() {
         ArrayList<String> tempOrder = new ArrayList<>(List.of(new String[]{}));
         order = new Order(tempOrder);
-        Response response = orderAPI.createOrder(AuthToken, order);
+        Response response = orderAPI.createOrder(authToken, order);
         checkResponseOfCreateOrderWithoutIngredients(response);
     }
 
@@ -129,7 +102,7 @@ public class OrderCreateTest {
     public void createOrderWithIncorrectIngredients() {
         ArrayList<String> tempOrder = new ArrayList<>(List.of(new String[]{"1", "2"}));
         order = new Order(tempOrder);
-        Response response = orderAPI.createOrder(AuthToken, order);
+        Response response = orderAPI.createOrder(authToken, order);
         checkResponseOfCreateOrderWithIncorrectIngredients(response);
     }
 

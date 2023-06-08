@@ -9,7 +9,6 @@ import org.junit.Test;
 import ru.yandex.praktikum.service.AuthResponse;
 import ru.yandex.praktikum.service.Service;
 
-import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
@@ -32,12 +31,12 @@ public class UserCreateTest {
     }
 
     @Step("Проверка ответов")
-    public void checkBodyOfResponse (AuthResponse response) {
-        assertTrue(regResponse.isSuccess());
-        assertEquals(UserCredentials.fakeEmail, regResponse.getUser().getEmail());
-        assertEquals(UserCredentials.fakeName, regResponse.getUser().getName());
-        assertFalse(regResponse.getAccessToken().isBlank());
-        assertFalse(regResponse.getRefreshToken().isBlank());
+    public void checkBodyOfResponse(AuthResponse response) {
+        assertTrue(response.isSuccess());
+        assertEquals(UserCredentials.fakeEmail, response.getUser().getEmail());
+        assertEquals(UserCredentials.fakeName, response.getUser().getName());
+        assertFalse(response.getAccessToken().isBlank());
+        assertFalse(response.getRefreshToken().isBlank());
     }
 
     @Step ("Завершение - удаляем созданного пользователя")
@@ -45,13 +44,7 @@ public class UserCreateTest {
         // авторизация пользователя
         userAPI.login(UserCredentials.from(UserCredentials.user));
         // удаление пользователя
-        given()
-                .header("Authorization",regResponse.getAccessToken())
-                .body(UserCredentials.user)
-                .when()
-                .delete(UserAPI.DELETE_USER_PATH)
-                .then()
-                .statusCode(HttpStatus.SC_ACCEPTED);
+        userAPI.delete(regResponse.getAccessToken(), UserCredentials.user);
     }
 
     @Test
@@ -59,15 +52,10 @@ public class UserCreateTest {
     public void createDoubleUserAndCheckResponse() {
         regResponse = userAPI.createAsAuthResponse(UserCredentials.user);
         checkBodyOfResponse(regResponse);
-        Response newResponse = createDoubleUser();
+        Response newResponse = userAPI.create(UserCredentials.user);
         checkStatusCodeOfBadRequest(newResponse);
         checkBodyOfDoubleRequest(newResponse);
         tearDown();
-    }
-
-    @Step("Еще раз создаем пользователя")
-    public Response createDoubleUser() {
-        return userAPI.create(UserCredentials.user);
     }
 
     @Step("Проверка ответа (результат отрицательный)")

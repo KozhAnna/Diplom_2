@@ -2,7 +2,8 @@ package ru.yandex.praktikum.order;
 
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
-import ru.yandex.praktikum.service.Service;
+import org.apache.http.HttpStatus;
+import ru.yandex.praktikum.service.IngredientsResponse;
 
 import static io.restassured.RestAssured.given;
 
@@ -14,6 +15,14 @@ public class OrderAPI {
     public Response createOrder(String accessToken, Order order) {
         return given()
                 .header("authorization", accessToken)
+                .body(order)
+                .when()
+                .post(ORDER_PATH);
+    }
+
+    @Step("Создание заказа (без авторизации)")
+    public Response createOrderWithoutAuth(Order order) {
+        return given()
                 .body(order)
                 .when()
                 .post(ORDER_PATH);
@@ -32,6 +41,18 @@ public class OrderAPI {
         return given()
                 .when()
                 .get(ORDER_PATH);
+    }
+
+    @Step("Получаем список возможных ингредиентов как класс")
+    public IngredientsResponse getAllIngredients() {
+        return given()
+                .when()
+                .get("ingredients")
+                .then()
+                .statusCode(HttpStatus.SC_OK)
+                .extract()
+                .response()
+                .as(IngredientsResponse.class);
     }
 
 }

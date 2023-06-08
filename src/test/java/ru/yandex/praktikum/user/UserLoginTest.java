@@ -9,7 +9,6 @@ import org.junit.Test;
 import ru.yandex.praktikum.service.AuthResponse;
 import ru.yandex.praktikum.service.Service;
 
-import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
@@ -28,13 +27,7 @@ public class UserLoginTest {
 
     @Step("Завершение - удаляем созданного пользователя")
     public void tearDown(){
-        given()
-                .header("Authorization", loginResponse.getAccessToken())
-                .body(UserCredentials.user)
-                .when()
-                .delete(UserAPI.DELETE_USER_PATH)
-                .then()
-                .statusCode(HttpStatus.SC_ACCEPTED);
+        userAPI.delete(loginResponse.getAccessToken(), UserCredentials.user);
     }
 
     @Test
@@ -47,11 +40,11 @@ public class UserLoginTest {
 
     @Step("Проверка ответов")
     public void checkBodyOfResponse(AuthResponse response) {
-        assertTrue(loginResponse.isSuccess());
-        assertFalse(loginResponse.getAccessToken().isBlank());
-        assertFalse(loginResponse.getRefreshToken().isBlank());
-        assertEquals(UserCredentials.fakeEmail, loginResponse.getUser().getEmail());
-        assertEquals(UserCredentials.fakeName, loginResponse.getUser().getName());
+        assertTrue(response.isSuccess());
+        assertFalse(response.getAccessToken().isBlank());
+        assertFalse(response.getRefreshToken().isBlank());
+        assertEquals(UserCredentials.fakeEmail, response.getUser().getEmail());
+        assertEquals(UserCredentials.fakeName, response.getUser().getName());
     }
 
     @Test
@@ -74,8 +67,11 @@ public class UserLoginTest {
 
     @Step("Проверка тела ответа")
     public void checkMessageWithIncorrectData (Response response){
-        response.then().body("success", is(false))
-                .and().assertThat().body("message", equalTo("email or password are incorrect"));
+        response.then()
+                .body("success", is(false))
+                .and()
+                .assertThat()
+                .body("message", equalTo("email or password are incorrect"));
     }
 
 }

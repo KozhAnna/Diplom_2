@@ -30,7 +30,7 @@ public class UserAPI {
         return given()
                 .body(user)
                 .when()
-                .post("auth/register")
+                .post(CREATE_USER_PATH)
                 .then()
                 .statusCode(HttpStatus.SC_OK)
                 .extract()
@@ -39,12 +39,14 @@ public class UserAPI {
     }
 
     @Step("Удаление пользователя")
-    public Response delete(String accessToken) {
-        Service.setupSpecification();
-        return given()
-                .body(accessToken)
+    public void delete(String accessToken, User user) {
+        given()
+                .header("Authorization", accessToken)
+                .body(user)
                 .when()
-                .post(DELETE_USER_PATH);
+                .delete(UserAPI.DELETE_USER_PATH)
+                .then()
+                .statusCode(HttpStatus.SC_ACCEPTED);
     }
 
     @Step("Авторизация пользователя")
